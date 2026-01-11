@@ -43,8 +43,25 @@ class NEODatabase:
         self._approaches = approaches
 
         # TODO: What additional auxiliary data structures will be useful?
+        # use dictionary can help to
+        # 1. create relationship between neo instances and corresponding CloseApproaches 
+        # 2. speed up get_neo_by_designation and get_neo_by_name methods
+        self._name_dict = dict()
+        self._designation_dict = dict()
 
         # TODO: Link together the NEOs and their close approaches.
+
+        # creating mapping between designation/human name to neo instance
+        for neo in self._neos:
+            self._designation_dict[neo.designation] = neo
+            if neo.name:
+                self._name_dict[neo.name] = neo
+        #  for each close approach, determine to which NEO its _designation corresponds, and assign that NearEarthObject to the CloseApproach's .neo attribute 
+        for approach in self._approaches:
+            neo = self._designation_dict[approach._designation]
+            approach.neo = neo
+            # add this close approach back to NearEarthObject's .approaches collection attribute
+            neo.approaches.append(approach)
 
     def get_neo_by_designation(self, designation):
         """Find and return an NEO by its primary designation.
@@ -60,6 +77,8 @@ class NEODatabase:
         :return: The `NearEarthObject` with the desired primary designation, or `None`.
         """
         # TODO: Fetch an NEO by its primary designation.
+        if designation in self._designation_dict:
+            return  self._designation_dict[designation]
         return None
 
     def get_neo_by_name(self, name):
@@ -77,6 +96,8 @@ class NEODatabase:
         :return: The `NearEarthObject` with the desired name, or `None`.
         """
         # TODO: Fetch an NEO by its name.
+        if name.capitalize() in self._name_dict:
+            return self._name_dict[name.capitalize()]
         return None
 
     def query(self, filters=()):

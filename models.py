@@ -56,7 +56,7 @@ class NearEarthObject:
         # and a missing diameter being represented by `float('nan')`.
         self.designation = designation 
         self.name = name if name else None
-        self.diameter = diameter if diamenter else float('nan')
+        self.diameter = float(diameter) if diameter else float('nan')
         self.hazardous = bool(pha == "Y")
 
         # Create an empty initial collection of linked approaches.
@@ -73,8 +73,8 @@ class NearEarthObject:
         # TODO: Use this object's attributes to return a human-readable string representation.
         # The project instructions include one possibility. Peek at the __repr__
         # method for examples of advanced string formatting.
-        return f"A NearEarthObject {self.fullname} has a diameter of {self.diameter:.3f} km, \
-                and {'is not' if not self.hazardous else 'is'} potentially hazardous."
+        return f"A NearEarthObject {self.fullname} has a diameter of {self.diameter:.3f} km, " \
+               f"and {'is not' if not self.hazardous else 'is'} potentially hazardous."
 
     def __repr__(self):
         """Return `repr(self)`, a computer-readable string representation of this object."""
@@ -114,10 +114,10 @@ class CloseApproach:
         # onto attributes named `_designation`, `time`, `distance`, and `velocity`.
         # You should coerce these values to their appropriate data type and handle any edge cases.
         # The `cd_to_datetime` function will be useful.
-        self._designation = ''
+        self._designation = designation
         self.time = cd_to_datetime(time) # TODO: Use the cd_to_datetime function for this attribute.
-        self.distance = distance if distance else  float('nan')
-        self.velocity = velocity if velocity else  float('nan')
+        self.distance = float(distance) if distance else  float('nan')
+        self.velocity = float(velocity) if velocity else  float('nan')
 
         # Create an attribute for the referenced NEO, originally None.
         self.neo = None
