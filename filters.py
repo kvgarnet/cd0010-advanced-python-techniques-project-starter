@@ -71,6 +71,16 @@ class AttributeFilter:
     def __repr__(self):
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
 
+class DateFilter(AttributeFilter):
+    """
+    A custom AttributeFilter subclass to override the get method to filter approach Dates.
+    it can represent operation corresponding to >=,<=,== with start_date,end_date and date option
+    """
+
+    @classmethod
+    def get(cls, approach):
+        """Returns the time attribute of the approach object."""
+        return approach.time.date()
 
 def create_filters(
         date=None, start_date=None, end_date=None,
@@ -109,7 +119,15 @@ def create_filters(
     :return: A collection of filters for use with `query`.
     """
     # TODO: Decide how you will represent your filters.
-    return ()
+    filters = []
+
+    if date:
+        filters.append(DateFilter(operator.eq, date))
+    if start_date:
+        filters.append(DateFilter(operator.ge, start_date))
+    if end_date:
+        filters.append(DateFilter(operator.le, end_date))
+    return filters
 
 
 def limit(iterator, n=None):

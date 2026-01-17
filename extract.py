@@ -44,7 +44,7 @@ def load_approaches(cad_json_path):
     # TODO: Load close approach data from the given JSON file.
     cad_collecion = []
     with open(cad_json_path)  as cad_file:
-        cad_json_data = json.load(cad_file)  # Parse JSON data into a Python object. (A)
+        cad_json_data = json.load(cad_file)  # Parse JSON data into a Python Dictionary object
         fields = cad_json_data['fields']
         pde_index = fields.index('des')
         cd_index = fields.index('cd')
