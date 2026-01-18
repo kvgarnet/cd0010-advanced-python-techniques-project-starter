@@ -17,6 +17,7 @@ iterator.
 You'll edit this file in Tasks 3a and 3c.
 """
 import operator
+import itertools
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -127,6 +128,20 @@ def create_filters(
         filters.append(DateFilter(operator.ge, start_date))
     if end_date:
         filters.append(DateFilter(operator.le, end_date))
+    if distance_min:
+        filters.append(DistanceFilter(operator.ge, distance_min))
+    if distance_max:
+        filters.append(DistanceFilter(operator.le, distance_max))
+    if velocity_min:
+        filters.append(VelocityFilter(operator.ge, velocity_min))
+    if velocity_max:
+        filters.append(VelocityFilter(operator.le, velocity_max))
+    if diameter_min:
+        filters.append(DiameterFilter(operator.ge, diameter_min))
+    if diameter_max:
+        filters.append(DiameterFilter(operator.le, diameter_max))
+    if hazardous is not None:
+        filters.append(HazardousFilter(operator.eq, hazardous))
     return filters
 
 
@@ -140,4 +155,11 @@ def limit(iterator, n=None):
     :yield: The first (at most) `n` values from the iterator.
     """
     # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+    try:
+        if n < 0:
+            raise ValueError('n must be a non-negative integer')
+        if n not in (None,0):
+            return itertools.islice(iterator,n)
+        return iterator
+    except Exception as e:
+        raise Exception(e)
