@@ -11,6 +11,9 @@ data on NEOs and close approaches extracted by `extract.load_neos` and
 
 You'll edit this file in Tasks 2 and 3.
 """
+from collections import defaultdict
+import operator
+from filters import DateFilter
 
 
 class NEODatabase:
@@ -63,6 +66,8 @@ class NEODatabase:
         #     neo.approaches = ca
         #     ca[0].neo = neo
 
+        # Build date index: Map dates to lists of CloseApproach objects
+        self._date_index = defaultdict(list)
         # creating mapping between designation/human name to neo instance
         for neo in self._neos:
             self._neo_designation_dict[neo.designation] = neo
@@ -74,6 +79,10 @@ class NEODatabase:
             approach.neo = neo
             # add this close approach back to NearEarthObject's .approaches collection attribute
             neo.approaches.append(approach)
+
+            # Extract date portion from approach's time attribute
+            app_date = approach.time.date()
+            self._date_index[app_date].append(approach)
 
     def get_neo_by_designation(self, designation):
         """Find and return an NEO by its primary designation.
@@ -124,9 +133,32 @@ class NEODatabase:
         guaranteed to be sorted meaningfully, although is often sorted by time.
 
         :param filters: A collection of filters capturing user-specified criteria.
-        :return: A stream of matching `CloseApproach` objects.
+        :return: A stream of matching `CloseApproach` objects
+
         """
         # TODO: Generate `CloseApproach` objects that match all of the filters.
+        # Solution:  use generator function('yield' instead of 'return'),function donot to return a fully-computed collection of matching result(take a while to compute) - but rather to generate a stream of matching close approaches. 
+        # In doing so, we'll make the query method almost instantaneous, and only do the work to determine the next element of the generator (the next matching CloseApproach) if another unit of code asks for it.
+
+        date_filters = [
+            f for f in filters 
+            if isinstance(f, DateFilter) and f.op is operator.eq
+        ]
+        # print(date_filters)
+        
+        if date_filters:
+            # Use first equality date filter to get candidate approaches
+            target_date = date_filters[0].value
+            candidates = self._date_index.get(target_date, [])
+            
+            # Apply ALL filters to candidates from date index
+            for approach in candidates:
+                if all(filter(approach) for filter in filters):
+                    # print('found')
+                    yield approach
+            return
+
+        # Fallback to full scan if no equality date filters found
         for approach in self._approaches:
             filter_col = (filter(approach) for filter in filters)
             if all(filter_col):

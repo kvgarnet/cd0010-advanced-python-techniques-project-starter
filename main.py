@@ -217,7 +217,7 @@ def query(database, args):
         diameter_min=args.diameter_min, diameter_max=args.diameter_max,
         hazardous=args.hazardous
     )
-    # Query the database with the collection of filters.
+    # Query the database's collection of close approaches with collection of filters, to generate a stream of matching close approaches.
     results = database.query(filters)
 
     if not args.outfile:
