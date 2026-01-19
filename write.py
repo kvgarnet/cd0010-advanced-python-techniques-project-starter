@@ -64,17 +64,17 @@ def write_to_json(results, filename):
     """
     # TODO: Write the results to a JSON file, following the specification in the instructions.
     json_out_list = list()
+    for approach in results:
+        approach_dict = dict()
+        approach_dict["datetime_utc"] = approach.time_str
+        approach_dict["distance_au"] = approach.distance
+        approach_dict["velocity_km_s"] = approach.velocity
+        approach_dict["neo"] = dict()
+        approach_dict["neo"]['designation'] = approach._designation
+        approach_dict["neo"]['name'] = approach.neo.name if approach.neo and approach.neo.name else ''
+        approach_dict["neo"]['diameter_km'] = approach.neo.diameter if approach.neo and approach.neo.diameter else ''
+        approach_dict["neo"]['potentially_hazardous'] = 'true' if approach.neo.hazardous == 'Y' else 'false' 
+        json_out_list.append(approach_dict)
     with open(filename,'w') as json_outfile:
-        for approach in results:
-            approach_dict = dict()
-            approach_dict["datetime_utc"] = approach.time_str
-            approach_dict["distance_au"] = approach.distance
-            approach_dict["velocity_km_s"] = approach.velocity
-            approach_dict["neo"] = dict()
-            approach_dict["neo"]['designation'] = approach._designation
-            approach_dict["neo"]['name'] = approach.neo.name if approach.neo and approach.neo.name else ''
-            approach_dict["neo"]['diameter_km'] = approach.neo.diameter if approach.neo and approach.neo.diameter else ''
-            approach_dict["neo"]['potentially_hazardous'] = 'true' if approach.neo.hazardous == 'Y' else 'false' 
-            json_out_list.append(approach_dict)
         json.dump(json_out_list,json_outfile,indent=2)
 
