@@ -64,17 +64,37 @@ def write_to_json(results, filename):
     """
     # TODO: Write the results to a JSON file, following the specification in the instructions.
     json_out_list = list()
-    for approach in results:
-        approach_dict = dict()
-        approach_dict["datetime_utc"] = approach.time_str
-        approach_dict["distance_au"] = approach.distance
-        approach_dict["velocity_km_s"] = approach.velocity
-        approach_dict["neo"] = dict()
-        approach_dict["neo"]['designation'] = approach._designation
-        approach_dict["neo"]['name'] = approach.neo.name if approach.neo and approach.neo.name else ''
-        approach_dict["neo"]['diameter_km'] = approach.neo.diameter if approach.neo and approach.neo.diameter else ''
-        approach_dict["neo"]['potentially_hazardous'] = 'true' if approach.neo.hazardous == 'Y' else 'false' 
-        json_out_list.append(approach_dict)
-    with open(filename,'w') as json_outfile:
-        json.dump(json_out_list,json_outfile,indent=2)
+    try:
+        for approach in results:
+            # manually build approach dict
+            # approach_dict = dict()
+            # approach_dict["datetime_utc"] = approach.time_str
+            # approach_dict["distance_au"] = approach.distance
+            # approach_dict["velocity_km_s"] = approach.velocity
+            # approach_dict["neo"] = dict()
+            # approach_dict["neo"]['designation'] = approach._designation
+            # approach_dict["neo"]['name'] = approach.neo.name if approach.neo and approach.neo.name else ''
+            # approach_dict["neo"]['diameter_km'] = approach.neo.diameter if approach.neo and approach.neo.diameter else ''
+            # # approach_dict["neo"]['potentially_hazardous'] = 'true' if approach.neo.hazardous == 'Y' else 'false' 
+            # approach_dict["neo"]['potentially_hazardous'] = approach.neo.hazardous 
 
+            # use serialize() to build approach dict
+            ca_data = approach.serialize()
+            neo_data =  approach.neo.serialize()
+
+            approach_dict = {
+                'datetime_utc': ca_data.get('datetime_utc'),
+                'distance_au': ca_data.get('distance_au'),
+                'velocity_km_s': ca_data.get('velocity_km_s'),
+                'neo': {
+                    'designation': neo_data.get('designation'),
+                    'name': '' if neo_data.get('name') is None else neo_data.get('name'),
+                    'diameter_km': neo_data.get('diameter_km'),
+                    'potentially_hazardous': neo_data.get('potentially_hazardous')
+                }
+            }
+            json_out_list.append(approach_dict)
+        with open(filename,'w') as json_outfile:
+            json.dump(json_out_list,json_outfile,indent=2)
+    except Exception as e:
+        print(f'Something went wrong: {e}')
